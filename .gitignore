@@ -2,3 +2,10 @@
 .bsp/
 .metals/
 target/
+.idea/
+.DS_Store
+build
+dist
+*.class
+node_modules
+res.txt

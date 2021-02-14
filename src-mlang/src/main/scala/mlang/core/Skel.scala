@@ -1,0 +1,57 @@
+package mlang.core
+
+/**
+  * Syntax-Value Skeleton
+  * 
+  * in light of miniTT, where conversion is checked by readback to syntax,
+  * conversion checking do needs some guidance from syntax.
+  * 
+  * but readback is inefficient. we want incremental conversion checking instead.
+  * see `value/conversion`
+  * 
+  * we want non type-annotated terms, because in the categorical semantics
+  * terms is indexed by the context/type. then we need type directed conversion checking
+  * 
+  * but then we are facing some problems:
+  * * incremental checking doesn't work well with recursive definitions, they might loop indefinitely
+  * * incremental checking doesn't work well with pattern lambdas:
+  *   in type-directed conversion checking we require stuck terms have inferrable types
+  *   but a struck term of pattern lambda has the form:
+  *       App(PatternLambda(branches), b)
+  *   and we cannot infer the type of this. because the "head" is a term-intro (and not type annotated)
+  *   
+  * one way to fix this is just add type annotations to `PatternLambda(branchs, typ: Pi(..,..))`,
+  * but **I don't want type annotated terms in core syntax**!
+  * one of the reason is consider a nested pattern lambda, it duplicate a lot of core syntax
+  * 
+  * we can fix this in this way:
+  * 
+  * we require our syntax/value has a fix set of patterns where pattern lambda/inductive types
+  * can occur, and this fix set of patterns are called `Skel`
+  * 
+  * the information of `Skel` is syntaxal, saved in semantic world, it is the minimal syntax
+  * information needed to guide whnf when we need type annotation on (value) terms,
+  * and when we no longer needs them 
+  * (e.g. a pattern lambda reduced to one of it's branch & no other pattern lambda inside this branch)
+  * 
+  * so we know when we need type annotation, we just need a way to add them,
+  * and we can have a uniform way to add them (thanks to Skel),
+  * the annotations is not littered in each term constructor, but a wrapping term:
+  *   Def(typ, SkelGlue(stuck, term, skel))
+  * [explain in detail...]
+  * 
+  * exmples of valid skeleton are:
+  * * pattern lambda
+  * * pattern lambda nested inside lambda
+  * * pattern lambda nested inside lambda or pattern lambda
+  * * inductive definition
+  * * inductive definition nested inside lambda
+  * * inductive definition nested inside pattern lambda (view from left?)
+  */
+enum Skel:
+  // asserts this value is a lambda, and the closure is of Skel `body`
+  case Lambda(body: Skel)
+  // asserts this value is a inductive definition
+  case Inductive
+  // asserts the term is a pattern lambda, and the closures inside will evaluate to these Skel
+  case PatternLambda(branches: Seq[Skel | Null]) 

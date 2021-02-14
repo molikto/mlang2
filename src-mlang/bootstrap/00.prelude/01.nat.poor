@@ -1,0 +1,144 @@
+def nat: set := enum // FEATURE native nat
+{ zero
+| suc(prev: nat)
+}
+
+def nat_decidable_eq: decidable_eq(nat) := declared
+
+def nat_pred_eq(#x #y: nat) : (_: suc(x)@nat = suc(y)@nat) => x = y :=
+{ (a) -> a }
+
+def nat_decidable_eq_rec(x y: nat): (p: decidable(x = y)) => decidable(suc(x)@nat = suc(y)@nat) :=
+{ true(a) -> true(make(a))
+| false(b) -> false({ faleq -> b(nat_pred_eq(faleq)) })
+}
+
+instance nat_eq_decidable: decidable_eq(nat) := 
+{ zero -> { zero -> true(refl) | suc(_) -> false({ a -> a }) }
+| suc(xx) -> { zero -> false({ a -> a }) | suc(yy) -> nat_decidable_eq_rec(xx, yy)(nat_eq_decidable(xx, yy)) }
+}
+
+def _: (4 = 4).to_bool($nat_eq_decidable(4, 4)) = true@bool := refl
+def _: (1 = 2).to_bool($nat_eq_decidable(1, 2)) = false@bool := refl
+
+
+/*
+extension plus(x: nat, y: nat): nat :=
+  match x
+{ zero -> y
+| suc(m) -> suc(m + y)
+}
+*/
+// FEATURE eaiser def of overlapping patterns
+def nat_pair: set := record (x y: nat)
+def plus_nat_pair:
+ (p: nat_pair) => nat :=
+{ (zero, y)    -> y
+| (x, zero)    -> x
+| (suc(x), y)  -> suc(plus_nat_pair(make(x, y)))
+| (x, suc(y)) -> suc(plus_nat_pair(make(x, y)))
+}
+extension plus(x: nat, y: nat): nat := plus_nat_pair(make(x, y))
+// FEATURE here we must use pattern lambda instead of match, because match will not make zero = a in first case in the PI result
+def plus_is_assoc: (a b c: nat) => a + b + c = a + (b + c) :=
+{ zero, _, _ -> refl
+| suc(p), b, c -> make(plus_is_assoc(p, b, c))
+}
+/**
+  * a simple proof becuase we use overlapping cases
+  */
+def plus_is_commutative: (a b: nat) => a + b = b + a :=
+{ zero, b -> refl
+| suc(m), b -> make(plus_is_commutative(m, b))
+}
+
+extension times(x y: nat): nat :=
+  match x
+{ zero -> 0
+| suc(m) -> y + m * y
+}
+def times_is_distributive_over_plus: (m n p: nat) => (m + n) * p = m * p + n * p :=
+{ zero, _, _ -> refl
+| suc(m), n, p -> trans(
+    // p+(m+n)*p =
+    ap({ a -> p + a }, times_is_distributive_over_plus(m, n, p)),
+    // p+(m*p+n*p)
+    sym(plus_is_assoc(p, m*p, n*p)) // FIXME(parser) there is a wired bug if there is a "," then this will be applied to a hole...
+    // p+m*p+n*p
+  )
+}
+def times_is_assoc: (m n p: nat) => (m * n) * p = m * (n * p) :=
+{ zero, n, p -> refl
+| suc(m), n, p -> 
+  trans(
+    // ((1+m)*n)*p = (n+m*n)*p
+    times_is_distributive_over_plus(n, m*n, p),
+    // n*p+(m*n)*p
+    ap({ a -> n*p+a}, times_is_assoc(m,n,p))
+    // n*p+m*(n*p) = (1+m)*(n*p)
+  )
+}
+def times_zero_is_zero: (m: nat) =>  m*0=0 :=
+{ zero -> refl
+| suc(m) -> times_zero_is_zero(m)
+}
+/* // TODO(lib) ...
+def times_suc_lemma: (n m: nat) => n*(1+m) = n+(n*m) :=
+{ zero -> refl
+| suc(n) -> trans(
+   // (1+n)*(1+m) = 1+m+n*(1+m)
+    plus_is_commutative(m,n)
+  )
+}
+def times_is_commutative: (m n: nat) => m*n = n*m :=
+{ zero -> sym(times_zero_is_zero(n))
+| suc(m) -> 
+}
+*/
+
+extension exp(x y: nat): nat :=
+  match y
+{ zero -> 1
+| suc(m) -> x * x.exp(m)
+}
+def _: set := let {
+  // very slow
+  // def _: 9.exp(9) = 387420489 := refl
+  def _: 4.exp(3) = 64 := refl
+  def _: 3.exp(4) = 81 := refl
+  prop
+}
+
+/* FEATURE in Agda: but we cannot split on second argument first...
+ _∸_ : ℕ → ℕ → ℕ
+m     ∸ zero   =  m
+zero  ∸ suc n  =  zero
+suc m ∸ suc n  =  m ∸ n
+*/
+partial extension minus: (x y: nat) => nat :=
+{ zero ->
+  { zero -> zero
+  | suc(_) -> error
+  }
+| suc(xx) ->
+  { zero -> suc(xx)
+  | suc(yy) -> xx - yy
+  }
+}
+
+namespace nat {
+
+// FEATURE typeclass!.
+def max: (x y: nat) => nat :=
+{ zero ->
+  { zero -> zero
+  | suc(a) -> suc(a)
+  }
+| suc(xx) ->
+  { zero -> suc(xx)
+  | suc(yy) -> suc(max(xx, yy))
+  }
+}
+}
+
+def _: nat;max(4, 5) = 5 := refl

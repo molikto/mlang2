@@ -1,0 +1,57 @@
+
+def term: set := enum 
+{ var(i: nat)
+| lam(term: term)
+| app(left: term, right: term)
+}
+
+def value: set := enum 
+{ gen(i: nat)
+| app(left: value, right: value)
+| lam(env: list(value), body: term)
+}
+
+partial def eval(env: list(value)): (t: term) => value :=
+{ var(i) -> env.get(i)
+| lam(t) -> lam(env, t)
+| app(l, r) -> let {
+  // FATURE skel check will reject if we don't type the handle
+  def l_eval: value := eval(env, l)
+  def r_eval: value := eval(env, r)
+  def handle: (l: value) => value :=
+    { lam(e2, b) -> eval(cons(r_eval, e2), b)
+    | o -> app(o, r_eval)
+    }
+  handle(l_eval)
+  }
+}
+
+partial def readback(c: nat): (v: value) => term :=
+{ gen(i) -> var(c - i - 1)
+| app(l, r) -> app(readback(c, l), readback(c, r))
+| lam(e2, body) -> lam(readback(suc(c), eval(cons(gen(c), e2), body)))
+}
+
+def ID : term := lam(var(0))
+def ONE : term := lam(lam(app(var(1), var(0))))
+def TWO: term := lam(lam(app(var(1), app(var(1), var(0)))))
+def FOUR: term := lam(lam(app(var(1), app(var(1), app(var(1), app(var(1), var(0)))))))
+
+// def mul(a: nat, b: nat): nat := { N, s, z -> a(_, b(_, s), z) }
+def MUL: term :=
+  lam(lam(lam(lam(
+    app(
+      app(
+        var(3),
+        app(
+          var(2),
+          var(1)
+        )
+      ),
+    var(0))))))
+
+
+def test_id: readback(zero, eval(nil, ID)) = ID := refl
+def test_one: readback(zero, eval(nil, ONE)) = ONE := refl
+def test_mul_one: readback(zero, eval(nil, app(app(MUL, ONE), ONE))) = ONE := refl
+def test_mul_two: readback(zero, eval(nil, app(app(MUL, TWO), TWO))) = FOUR := refl

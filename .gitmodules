@@ -1,0 +1,3 @@
+[submodule "modules/tree-sitter-javacpp/tree-sitter"]
+	path = modules/tree-sitter-javacpp/tree-sitter
+	url = git@github.com:tree-sitter/tree-sitter.git

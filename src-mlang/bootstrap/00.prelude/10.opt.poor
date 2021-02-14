@@ -1,0 +1,17 @@
+def opt(T: set): set := enum 
+{ none
+| some(item: T)
+}
+under (#T: set, o: opt(T)) {
+  partial extension get: T :=
+  match o
+  { none -> error
+  | some(a) -> a
+  }
+
+  extension map(#B: set, f: T => B): opt(B) :=
+  match o
+  { none -> none
+  | some(a) -> some(f(a))
+  }
+}

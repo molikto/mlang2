@@ -1,0 +1,46 @@
+
+
+def nat_less_eq: relation(nat) :=
+{ zero -> {_ -> ⊤ }
+| suc(m) -> { zero -> ⊥ | suc(n) -> nat_less_eq(m, n) }
+}
+// FEATURE(syntax) how we introduce a implicit lambda is ugly...
+// FEATURE this is way more ugly than Agda, when can we have inductive families?
+// https://plfa.github.io/Relations/#5576
+def nat_less_eq_inverse: (#m #n: nat, p: nat_less_eq(suc(m), suc(n))) => nat_less_eq(m, n) :=
+{ #zero -> { #_, p -> p }
+| #suc(m) -> { #zero, p -> p | #suc(n), p -> p }
+}
+def nat_less_eq_refl: (#n: nat) => nat_less_eq(n, n) :=
+{ #zero -> make() // FEATURE how we give a unit is ugly..
+| #suc(n) -> nat_less_eq_refl
+}
+// https://plfa.github.io/Relations/#8863
+def nat_less_eq_trans: (#m #n #p: nat, _: nat_less_eq(m, n), _: nat_less_eq(n, p)) => nat_less_eq(m, p) :=
+{ #zero -> { _, _ ->  make() }
+| #suc(m) ->
+  { #zero -> { fal, _ -> fal.exfalso }
+  | #suc(n) ->
+    { #zero -> { _, fal -> fal.exfalso }
+    | #suc(p) -> { a, b -> nat_less_eq_trans(a, b) }
+    }
+  }
+}
+// https://plfa.github.io/Relations/#10931
+def nat_less_eq_antisym: (#m #n: nat, _: nat_less_eq(m, n), _: nat_less_eq(n, m)) => m = n :=
+{ #zero ->
+  { #zero, _, _ -> refl
+  | #suc(n), _, fal -> fal.exfalso
+  }
+| #suc(m) ->
+  { #zero, fal, _ ->  fal.exfalso
+  | #suc(n), e1, e2 -> ap({a -> suc(a)@nat }, nat_less_eq_antisym(e1, e2))
+  }
+}
+/* TODO(lib)
+// https://plfa.github.io/Relations/#13468
+def nat_less_eq_total: relation_total(nat_less_eq) :=
+{ zero -> 
+| suc(m) -> 
+}
+*/

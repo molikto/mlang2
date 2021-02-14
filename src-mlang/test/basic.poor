@@ -1,0 +1,72 @@
+def nat: set := enum 
+{ zero
+| suc(prev: nat)
+}
+
+def church_nat: set^1 := (a: set, _: a => a, _: a) => a
+
+def church_nat_prop: prop := (a: prop, _: a => a, _: a) => a
+
+def add:
+ (x: nat,  y: nat) => nat :=
+{ zero,    y       -> y
+| suc(xp), y       -> suc(add(xp, y))
+}
+
+def addp(x: nat):
+ (y: nat) => nat :=
+{ zero -> x
+| suc(p) -> suc(addp(x, p))
+}
+
+def mul:
+ (x: nat,  y: nat) => nat :=
+{ zero,    _       -> zero
+| suc(xp), y       -> add(y, mul(xp, y))
+}
+
+def assert_eq_decl(#typ: set, a: typ, b: typ): set^1 :=
+  (gen: (_: typ) => set, _: gen(a)) => gen(b)
+
+def _: assert_eq_decl(8, mul(2, 4)) := { _, a -> a }
+
+def _: assert_eq_decl(32, mul(16, 2)) := { _, a -> a }
+
+def nat_pair: set := record {
+  field _1: nat
+  field _2: nat
+}
+
+def test_nat_pair: nat_pair := make(1, 1)
+
+def pointed: set^1 := record {
+  field #T: set
+  field point: T
+}
+
+def point_or_two: set^1 := enum 
+{ pointed(#T: set, point: T)
+| line(#T: set, a: T, b: T)
+}
+
+def pointed_nat_1: pointed := make(1)
+
+def pointed_nat_2: point_or_two := pointed(2)
+
+def line_nat: point_or_two := line(3, 5)
+
+def zero_add: (#n: nat) => (add(0, n) = n) := refl
+
+def add_zero: (#n: nat) => add(n, 0) = n :=
+{ #zero -> refl
+| #suc(p) -> make(add_zero(#p))
+}
+
+def add_assoc: (a: nat, b: nat, c: nat) => add(add(a, b), c) = add(a, add(b, c)) :=
+{ zero, _, _ -> refl
+| suc(p), b, c -> make(add_assoc(p, b, c))
+}
+
+def nat_sym_lem: (#a: nat, _: 0 = suc(a)@nat) => suc(a)@nat = 0 := sym
+
+def test_lift: set^1 := nat^1

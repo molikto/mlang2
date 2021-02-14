@@ -1,0 +1,13 @@
+
+// FEATURE def field size := . but still we don't have the subtyping relation like in Scala
+def pattern: set := enum 
+{ generic
+| make(fields: seq(pattern))
+| construct(case: nat, fields: seq(pattern))
+}
+
+extension size: (p: pattern) => nat :=
+{ generic -> 1
+| make(ps) -> ps.map({p -> p.size}).sum
+| construct(_, ps) -> ps.map({ p -> p.size }).sum
+}

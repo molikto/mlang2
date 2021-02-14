@@ -1,0 +1,62 @@
+def list(T: set): set := enum 
+{ nil
+| cons(head: T, tail: list(T))
+}
+under (#T: set, l: list(T)) {
+
+partial extension get: (i: nat) => T :=
+  match l
+{ cons(h, t) ->
+  { zero -> h
+  | suc(p) -> t.get(p)
+  }
+| nil -> error
+}
+
+extension len: nat := 
+  match l
+{ nil -> 0
+| cons(_, t) -> suc(t.len)
+}
+extension map(#B: set, op: (_: T) => B): list(B) :=
+  match l
+{ nil -> nil
+| cons(h, t) -> cons(op(h), t.map(op))
+}
+extension fold_left(#B: set, b: B, op: (_: B, _: T) => B): B :=
+  match l
+{ nil -> b
+| cons(h, t) -> t.fold_left(op(b, h), op)
+}
+
+under (p: T => prop, $p_decidable: decidable_pred(p)) {
+
+extension find: opt(T) :=
+  match l
+{ nil -> none
+| cons(h, t) -> if(p(h), $p_decidable(h), some(h)@opt(T), t.find(p, $p_decidable)) // FEATURE(less type annotation) for opt(T)
+}
+
+extension index_where: opt(nat) :=
+  match l
+{ nil -> none
+| cons(h, t) -> if(p(h), $p_decidable(h), some(zero)@opt(nat), t.index_where(p, $p_decidable).map({ a -> suc(a)@nat }))
+}
+
+extension find_with_index_where: opt(pair(nat, T)) :=
+  l.index_where(p, $p_decidable).map({ i -> make(i, l.get(i)) @ pair(nat, T) }) // FEATURE(less type annotation) for pair(nat, T)
+}
+/*
+
+under ($eq: decidable_eq(T)) {
+  extension index_of(a: T): opt(nat) :=
+    match l
+  { nil -> none
+  | cons(h, t) -> if(h == a, some(zero)@opt(nat), t.index_where(pred).map({ a -> suc(a)@nat }))
+  }
+}
+*/
+
+}
+
+def seq: (set) => set := list

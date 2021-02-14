@@ -1,0 +1,51 @@
+
+def term: set := declared
+def telescope: set := declared
+
+def ref: set := nat
+
+def local_box: set := enum 
+{ def(type: term, term: term) // can be local
+| meta(type: term, term: term)
+}
+def box: set := enum 
+{ decl(type: term) // global
+| def_rec(ref: ref)
+//...local_box XXX extend? or what?
+}
+
+def program: set := seq(box)
+
+def closure: set := record (inner: term)
+
+def branch: set := record (pattern: pattern, body: closure)
+
+def telescope_closure: set := record (inner: telescope)
+
+def telescope := enum 
+{ nil
+| let(boxes: seq(local_box), in: telescope)
+| cons(head: term, tail: telescope_closure)
+}
+
+def term := enum 
+{ ref(ref: ref)
+| temp_ref(i1: nat, i2: nat)
+| global_ref(ref: utils;ref, lvl: nat)
+
+| sort(sort: sort)
+| pi(dom: term, cod: closure, etype: etype;pi)
+| record(fields: telescope, etype: etype;record)
+| enum(cases: seq(telescope), etype: etype;enum)
+
+| lambda(body: closure)
+| construct(case: nat, fields: seq(term))
+| make(fields: seq(term))
+| pattern_lambda(branches: seq(branch))
+
+| app(head: term, arg: term)
+| proj(head: term, field: nat)
+| let(boxes: seq(local_box), in: term)
+
+| error
+}

@@ -1,0 +1,4 @@
+//def ref: set := str
+//def name: set := str
+def ref: set := nat
+def name: set := nat

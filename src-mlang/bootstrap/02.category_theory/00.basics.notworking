@@ -1,0 +1,26 @@
+
+
+class has_hom(obj: set) := record {
+  field hom: (obj, obj) => set
+  infixr ` ~> `:10 := hom
+}
+
+class category_struct(obj: set) := has_hom(obj) ++ record {
+  field id: #(x: obj) ~> x
+  field comp: (#(x: obj) ~> #y, y ~> #z) => x ~> z
+  infixr ` >> `:80 := comp
+}
+
+class category(obj: set) := category_struct(obj) ++ record {
+  field id_elim_left: ( f: (x: obj) ~> y) => id(x) >> f = f
+  field id_elim_right: (#x #y: obj, f: x ~> y) => f >> id(x) = f
+  field comp_is_assoc: (#w #x #z: obj, f: w ~> x, g: x ~> y, h: y ~> z) => (f >> g) >> h = f >> (g >> h)
+}
+
+// better: you introduce implicit variables when it is first introduced, and this results in **meaningfull** less char count
+
+class category(obj: set) := category_struct(obj) ++ record {
+  field id_elim_left: (f: #(x: obj) ~> #y) => id(x) >> f = f
+  field id_elim_right: (f: #(x: obj) ~> #y) => f >> id(x) = f
+  field comp_is_assoc: (f: #(w: obj) ~> #x, g: x ~> #y, h: y ~> z) => (f >> g) >> h = f >> (g >> h)
+}

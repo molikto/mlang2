@@ -1,0 +1,56 @@
+def sort: set := enum 
+{ set(lvl: nat)
+| prop(lvl: nat)
+}
+under (s: sort) {
+  extension lvl: nat :=
+    match s
+  { set(l) -> l
+  | prop(l) -> l
+  }
+  extension lift(n: nat): sort :=
+    match s
+  { set(l) -> set(l + n)
+  | prop(l) -> prop(l + n)
+  }
+  extension sort: sort := s.lift(1)
+}
+
+namespace sort {
+under (a b: sort) {
+  def pi: sort :=
+    match b
+  { prop(l) -> prop(nat;max(a.lvl, l))
+  | set(l) -> set(nat;max(a.lvl, l))
+  }
+  def lub: sort :=
+    match a
+  { prop(l) ->
+      match b
+    { prop(m) -> prop(nat;max(l, m))
+    | set(m) -> set(nat;max(l, m))
+    }
+  | set(l) -> set(nat;max(a.lvl, l))
+  }
+  def subsort(s: sign): bool :=
+    match a
+  { prop(l) ->
+      match b
+    { prop(m) -> true
+    | set(m) -> false
+    }
+  | set(l) ->
+      match b
+    { prop(m) -> false
+    | set(m) -> true
+    }
+  }
+}
+def sigma(ss: seq(sort)) : sort :=
+  match ss
+  { nil -> prop(0)@sort
+  | _ -> set(ss.map({ a -> a.lvl}).max)
+  }
+}
+
+def _: sort;pi(set(0), prop(0)) = prop(0)@sort := refl

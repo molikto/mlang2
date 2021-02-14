@@ -1,5 +1,15 @@
 {
     "files.watcherExclude": {
         "**/target": true
-    }
+    },
+    "compile-hero.disable-compile-files-on-did-save-code": false,
+    "explorer.sortOrder": "mixed",
+    "todo-tree.general.tags": [
+        "BUG",
+        "HACK",
+        "FIXME",
+        "TODO",
+        "XXX",
+        "FEATURE"
+      ]
 }

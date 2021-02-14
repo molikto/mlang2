@@ -1,0 +1,44 @@
+
+
+def not(P: prop): prop := (_: P) => ⊥
+
+def bool: set := enum { true | false }
+
+class decidable(P: prop): set := enum 
+{ true(h: P)
+| false(h: not(P))
+}
+
+under (p: prop, $p_decidable: decidable(p)) {
+
+extension to_bool: bool :=
+match p_decidable
+{ false(_) -> false
+| true(_) -> true
+}
+
+// FEATURE bool should be a subtype of decidable, then we can use bool here???
+def if(#T: set, l r: T): T :=
+  match p_decidable
+{ true(_) -> l
+| false(_) -> r
+}
+
+}
+
+def decidable_eq(A: set): set := (a b: A) => decidable(a = b)
+
+def decidable_pred(#A: set, r: A => prop): set :=
+  (a: A) => decidable(r(a))
+
+def decidable_rel(#A: set, r: (a b: A) => prop): set :=
+  (a b: A) => decidable(r(a, b))
+
+extension exfalso(#T: prop, a: ⊥): T := match a { }
+
+
+
+def relation(T: set): set := (a b: T) => prop
+
+def relation_total(#T: set, r: relation(T)): set :=
+  (a b: T) => enum { ltr(of: r(a, b)) | rtl(of: r(b, a)) }

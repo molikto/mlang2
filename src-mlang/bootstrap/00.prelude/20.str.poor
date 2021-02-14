@@ -1,0 +1,2 @@
+def str: set := list(nat) // FEATURE native str type
+

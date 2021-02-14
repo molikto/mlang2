@@ -1,0 +1,23 @@
+
+def field: set := record {
+  field plicity: utils;plicity
+  field name: utils;name
+}
+
+def record: set := record {
+  field fields: seq(field)
+}
+under (_record: record) {
+  extension apply(_ref: utils;ref): opt(pair(nat, field)) :=
+    _record.fields.find_with_index_where({ a -> a.name = _ref })
+
+  // FEATURE eq type classs
+  // extension same_value (o: record): bool :=
+  //   fields == 
+}
+
+def pi: set := field
+
+def case: set := record (name: utils;name, fields: seq(field))
+
+def enum: set := seq(case)

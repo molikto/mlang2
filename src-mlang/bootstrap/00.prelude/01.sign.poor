@@ -1,0 +1,2 @@
+
+def sign: set := enum { zero | pos | neg }

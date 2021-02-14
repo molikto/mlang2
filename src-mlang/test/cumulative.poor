@@ -1,0 +1,7 @@
+
+
+
+def _: set^1 := set
+def _: set^4 := set
+def _: set^4 := (a: set^3) => set^3
+def _: set^4 := (a: set^3) => set^2

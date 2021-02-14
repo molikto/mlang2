@@ -1,0 +1,8 @@
+
+under (a: list(nat)) {
+  extension sum: nat :=
+    a.fold_left(0, { b, t -> b + t })
+
+  extension max: nat :=
+    a.fold_left(0, { b, t -> nat;max(b, t) })
+}

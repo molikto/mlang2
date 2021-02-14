@@ -1,0 +1,73 @@
+
+def bool: set^1 :=
+  (B: set, t: B, f: B) => B
+
+def true: bool :=
+  { _, t, f -> t }
+
+def false: bool :=
+  { _, t, f -> f }
+
+def not: bool => bool :=
+  { b, B, t, f -> b(B, f, t) }
+
+def list(A: set): set^1 :=
+  (L: set, cons: A => (L => L), nil: L) => L
+
+def nil(#A: set): list(A) :=
+  { L, cons, nil -> nil }
+
+def cons(#A: set, x: A, xs: list(A)): list(A) :=
+  { L, cons, nil -> cons(x, xs(L, cons, nil)) }
+
+def map(#A: set, #B: set, f: A => B, xs: list(A)): list(B) :=
+  { L, cons, nil -> xs(L, { a-> cons(f(a)) }, nil) }
+
+
+def list1: list^1(bool) :=
+  cons^1(true, cons^1(false, cons^1(true, nil^1)))
+
+
+// FEATURE implicit : set for #A
+// FEATURE implicit arg on the right for #B
+def comp(
+  #A: set,
+  #B: A => set,
+  #C: (#a: A, _: B(a)) => set,
+  f: (#a: A, b: B(a)) => C(b),
+  g: (a: A) => B(a),
+  a: A
+): C(g(a)) :=
+  f(g(a))
+
+def comp_example: list^1(bool) := comp^2(cons^1(true), cons^1(false), nil^1)
+
+def nat: set^1 :=
+  (N: set, _: N => N, _: N) => N
+
+def mul(a: nat, b: nat): nat :=
+  { N, s, z -> a(_, b(_, s), z) }
+
+def ten: nat :=
+  { N, s, z -> s(s(s(s(s(s(s(s(s(s(z)))))))))) }
+
+def hundred: nat := mul(ten, ten)
+
+// https://plfa.github.io/Equality/#18530
+def eq(#A: set, x: A, y: A): set^1 :=
+  (P: A => set) => (P(x) => P(y))
+
+def refl_eq(#A: set, #x: A): eq(x, x) :=
+  { _, px -> px }
+
+def test := refl_eq^1 @ eq^1(mul(ten, ten), hundred)
+
+def trans_eq(A: set, a: A, b: A, c: A, ab: eq(a, b), bc: eq(b, c)): eq(a, c) :=
+  { P, PA -> bc(P, ab(P, PA)) }
+  
+def sym_eq(#A: set, #a: A, #b: A, ab: eq(a, b)): eq(b, a) := { P -> let {
+  def Q: A => set := { c -> P(c) => P(a) }
+  def Qa: Q(a) := refl_eq(P)
+  def Qb: Q(b) := ab(Q, Qa)
+  Qb
+} }

@@ -1,1 +1,9 @@
-# mlang ─ logical reconstruction of mathematical pracice
+# mlang ─ logical reconstruction of mathematical practice
+
+wip, experimental project
+
+## setup
+
+standard Scala 3 project
+* IDE: you can VS Code + [Metals](https://scalameta.org/metals/)
+* command line: `sbt`. then `mlang/test`

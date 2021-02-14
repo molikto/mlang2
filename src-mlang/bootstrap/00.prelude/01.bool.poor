@@ -1,0 +1,13 @@
+
+def bool_not: (a: bool) => bool :=
+{ true -> false
+| false -> true
+}
+extension bool_and: (a b: bool) => bool := // feature inline. order matters here
+{ true, b -> b
+| false, _ -> false
+}
+extension bool_or : (a b: bool) => bool :=
+{ true, _ -> true
+| false, b -> b
+}
