@@ -93,7 +93,7 @@ package internal:
     case Enum(ks, e) => syntax.Enum(ks.map(_.reify), e)
     case Lambda(b) => syntax.Lambda(b.reifyC)
     case Make(fs) => syntax.Make(fs.map(_.reify))
-    case Construct(k, fs) => syntax.Construct(k, fs.map(_.reify))
+    case Construct(k, f) => syntax.Construct(k, f.reify)
     case App(l, r) => syntax.App(l.reify, r.reify)
     case Proj(l, r) => syntax.Proj(l.reify, r)
     case PatternLambda(bs) => syntax.PatternLambda(bs.map(b => syntax.Branch(b.pattern, b.clos.reifyC)))
@@ -170,7 +170,7 @@ package internal:
     case Enum(ks, _) => ks.foreach(_.deps)
     case Lambda(b) => b.depsC
     case Make(fs) => fs.map(_.deps)
-    case Construct(k, fs) => fs.foreach(_.deps)
+    case Construct(k, f) => f.deps
     case App(l, r) => l.deps; r.deps
     case Proj(l, _) => l.deps
     case PatternLambda(bs) => bs.foreach(b => b.clos.depsC)

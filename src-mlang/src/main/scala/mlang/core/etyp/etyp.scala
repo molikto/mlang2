@@ -21,7 +21,7 @@ case class Record(fields: Seq[Field]) extends Etyp:
     else null
   def ~ (other: Record): Boolean = this.eq(other) || fields == other.fields
 
-case class Kase(name: Name, fields: Seq[Field]):
+case class Kase(name: Name, fields: Boolean):
   def ~ (other: Kase) = name == other.name && fields == other.fields
  // fields.size == other.fields.size && fields.zip(other.fields).forall(p => p._1.equalsType(p._2))
 

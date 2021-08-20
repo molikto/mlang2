@@ -31,14 +31,15 @@ class ConversionChecker:
     case (Telescope.Nil, Telescope.Nil) => true
     case _ => false
 
-  private def subtyp(t1: Term, t2: Term, dir: Int): Boolean =
+  private def subtyp(t1: Term, t2: Term, dir: Int, glue: Boolean = true): Boolean =
     val res: Boolean = if t1.eq(t2) then true else
       (t1.whnf, t2.whnf) match
       case (s1: Sort, s2: Sort) =>
         Sort.subsort(s1, s2, dir)
-      case (Glued(Eq(t1, a1, b1)), Glued(Eq(t2, a2, b2))) =>
+      case (Glued(Eq(t1, a1, b1)), Glued(Eq(t2, a2, b2))) if glue =>
         val t = choose(t1, t2, dir)
-        subtyp(t1, t2, dir) && equals(t, a1, a2) && equals(t, b1, b2)
+        val firstTry = subtyp(t1, t2, dir) && equals(t, a1, a2) && equals(t, b1, b2) 
+        firstTry || (glue && subtyp(t1, t2, dir, false))
       case (SkelGlue(gen1, _, glo1, Skel.Inductive), SkelGlue(gen2, _, glo2, Skel.Inductive)) =>
         contract { glo1 && glo2 }
         equalsStuck(gen1, gen2)
@@ -124,8 +125,8 @@ class ConversionChecker:
           equals(r.fields, 0, i => Proj(v1, i), i => Proj(v2, i))
         case Unwrap(s: Enum) =>
           (v1.whnf, v2.whnf) match
-          case (Construct(b1, vs1), Construct(b2, vs2)) =>
-            b1 == b2 && equals(s(b1), 0, vs1, vs2)
+          case (Construct(b1, v1), Construct(b2, v2)) =>
+            b1 == b2 && equals(s(b1), v1, v2)
           case _ => equalsStuck(v1, v2)
         case u: Sort => subtyp(v1, v2, 0)
         case _ => equalsStuck(v1, v2)

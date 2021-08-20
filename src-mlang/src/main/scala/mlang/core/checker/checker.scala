@@ -30,8 +30,8 @@ extension (term: Term)
       cs.foreach(c => declarePattern(c.pattern, a) { gen => c.clos.get.check(b(gen)) })
     case (Make(ts), value.Unwrap(value.Record(fields, _))) =>
       checkByTelescope(fields, ts)
-    case (Construct(n, vs), value.Unwrap(value.Enum(ds, _))) =>
-      if n < ds.length then checkByTelescope(ds(n), vs) else checkFailed()
+    case (Construct(n, v), value.Unwrap(value.Enum(ds, _))) =>
+      if n < ds.length then v.check(ds(n)) else checkFailed()
     case (Let(ds, in), t) =>
       val ctx1 = inferDefs(ds)
       in.check(typ)(using ctx1)
@@ -69,7 +69,7 @@ extension (term: Term)
       val sa = a.inferAsTyp
       Sort.pi(sa, generic(a.eval) { gen => b.get.inferAsTyp })
     case Record(fields, e) => inferTelescope(fields)
-    case Enum(ds, e) => Sort.ind(ds.map(inferTelescope))
+    case Enum(ds, e) => Sort.ind(ds.map(_.inferAsTyp))
     case App(l, r) =>
       l.infer.whnf match
       case value.Unwrap(value.Pi(a, b, _)) => r.check(a); b(r.eval)
@@ -118,12 +118,12 @@ private def declarePattern[T](pattern: Pattern, typ: value.Term)(handler: Extend
     case value.Unwrap(value.Record(fs, _)) =>
       declareTelescope(fields, fs, vs => value.Make(vs))(handler)
     case _ => checkFailed()
-  case Pattern.Construct(index, fields) =>
+  case Pattern.Construct(index, pat) =>
     typ.whnf match
     case value.Unwrap(value.Enum(kases, _)) =>
       if index < kases.size then
         val k = kases(index)
-        declareTelescope(fields, kases(index), vs => value.Construct(index, vs))(handler)
+        declarePattern(pat, kases(index))(handler)
       else checkFailed()
     case _ => checkFailed()
 

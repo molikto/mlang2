@@ -14,7 +14,7 @@ sealed trait CompoundTerm
 
 case class Pi(dom: Term, cod: Closure, et: etyp.Pi = etyp.Pi(Plicit("", Plicity.Ex))) extends CompoundTerm
 case class Record(fields: Telescope, et: etyp.Record) extends CompoundTerm
-case class Enum(kases: Seq[Telescope], et: etyp.Enum) extends CompoundTerm
+case class Enum(kases: Seq[Term], et: etyp.Enum) extends CompoundTerm
 case class Eq(t: Term, left: Term, right: Term) extends CompoundTerm
 
 case class Lambda private (body: Closure) extends CompoundTerm
@@ -24,9 +24,7 @@ object Lambda:
     val t = new Lambda(body)
     dbi.liftImmAppUp(t, t, 0)
 
-case class Construct(kase: Int, fields: Seq[Term]) extends CompoundTerm
-object Construct:
-   @targetName("apply_varargs") def apply(kase: Int, fields: Term*) = new Construct(kase, fields)
+case class Construct(kase: Int, term: Term) extends CompoundTerm
 case class Make(fields: Seq[Term]) extends CompoundTerm
 case class Branch(pattern: Pattern, clos: Closure)
 case class PatternLambda(branches: Seq[Branch]) extends CompoundTerm

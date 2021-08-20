@@ -27,8 +27,16 @@ given elabApp: ImplicitAwareInferableElaborator[App] with
           typ.whnf match
           case value.Unwrap(value.Enum(kases, e)) =>
             e(ref) match
-            case (index, k) =>
-              syntax.Construct(index, checkByTelescope(kases(index), k.fields, args))
+            case (index, k)  =>
+              if k.fields then
+                kases(index) match
+                case value.Record(fs, e) => 
+                  syntax.Construct(index, syntax.Make(checkByTelescope(fs, e.fields, args)))
+                case _ => logicError()
+              else if args.size == 1 && args(0).plicity == Plicity.Ex then
+                syntax.Construct(index, args(0).unwrap.check(kases(index)))
+              else
+                throw new NotHandledException("an unwrapped enum should have only one explicit argement")
             case _ => fallback()
           case _ => fallback()
         case _ => fallback()

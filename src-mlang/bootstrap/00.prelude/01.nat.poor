@@ -5,17 +5,11 @@ def nat: set := enum // FEATURE native nat
 
 def nat_decidable_eq: decidable_eq(nat) := declared
 
-def nat_pred_eq(#x #y: nat) : (_: suc(x)@nat = suc(y)@nat) => x = y :=
-{ (a) -> a }
-
-def nat_decidable_eq_rec(x y: nat): (p: decidable(x = y)) => decidable(suc(x)@nat = suc(y)@nat) :=
-{ true(a) -> true(make(a))
-| false(b) -> false({ faleq -> b(nat_pred_eq(faleq)) })
-}
+def nat_pred_eq(#x #y: nat, eq: suc(x)@nat = suc(y)@nat): x = y := eq
 
 instance nat_eq_decidable: decidable_eq(nat) := 
 { zero -> { zero -> true(refl) | suc(_) -> false({ a -> a }) }
-| suc(xx) -> { zero -> false({ a -> a }) | suc(yy) -> nat_decidable_eq_rec(xx, yy)(nat_eq_decidable(xx, yy)) }
+| suc(xx) -> { zero -> false({ a -> a }) | suc(yy) -> nat_eq_decidable(xx, yy) }
 }
 
 def _: (4 = 4).to_bool($nat_eq_decidable(4, 4)) = true@bool := refl
@@ -42,14 +36,14 @@ extension plus(x: nat, y: nat): nat := plus_nat_pair(make(x, y))
 // FEATURE here we must use pattern lambda instead of match, because match will not make zero = a in first case in the PI result
 def plus_is_assoc: (a b c: nat) => a + b + c = a + (b + c) :=
 { zero, _, _ -> refl
-| suc(p), b, c -> make(plus_is_assoc(p, b, c))
+| suc(p), b, c -> plus_is_assoc(p, b, c)
 }
 /**
   * a simple proof becuase we use overlapping cases
   */
 def plus_is_commutative: (a b: nat) => a + b = b + a :=
 { zero, b -> refl
-| suc(m), b -> make(plus_is_commutative(m, b))
+| suc(m), b -> plus_is_commutative(m, b)
 }
 
 extension times(x y: nat): nat :=

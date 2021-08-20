@@ -12,10 +12,10 @@ case class Pi(dom: Term, cod: Closure1, et: etyp.Pi) extends Typ:
   override lazy val typ: Sort = Sort.pi(dom.whnf.sort, cod(Generic(dom)).whnf.sort)
 case class Record(fields: Telescope, et: etyp.Record) extends Typ:
   override lazy val typ: Sort = Sort.sigma(fields.sorts)
-case class Enum(kases: Seq[Telescope], et: etyp.Enum) extends Typ:
+case class Enum(kases: Seq[Term], et: etyp.Enum) extends Typ:
   override def toString(): String = s"Enum(${et})"
-  def apply(a: Int): Telescope = kases(a)
-  override lazy val typ: Sort = Sort.ind(kases.map(b => Sort.sigma(b.sorts)))
+  def apply(a: Int): Term = kases(a)
+  override lazy val typ: Sort = Sort.ind(kases.map(b => b.sort))
 case class Eq(t: Term, left: Term, right: Term) extends Typ:
   override def typ: Sort = t.sort
 
@@ -25,7 +25,7 @@ case class Eq(t: Term, left: Term, right: Term) extends Typ:
 sealed trait Intro extends CompoundTerm
 case class Lambda(body: Closure1) extends Intro
 case class Make(fields: Seq[Term]) extends Intro
-case class Construct(kase: Int, fields: Seq[Term]) extends Intro
+case class Construct(kase: Int, term: Term) extends Intro
 case class Branch(pattern: Pattern, clos: Closure)
 case class PatternLambda(branches: Seq[Branch]) extends Intro
 
@@ -69,7 +69,7 @@ object SkelGlue:
 /**
   * provides indirectness so let-definition and global definitions are readback as references
   */
-case class Def(override val typ: Term, var term: Term | UncheckedNull) extends Box
+case class Def(override val typ: Term, var term: Term | Null) extends Box
 
 case class Meta(override val typ: Term, var term: Term | Null) extends Box:
   override def toString() = s"Meta(${term != null})@" + System.identityHashCode(this)

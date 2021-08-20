@@ -68,7 +68,7 @@ private def checkLambda(lam: Lambda, typ: value.Term)(using old: Context): synta
 private def hasGeneric(v: value.Term): Boolean =
   v match
   case value.Make(vs) => vs.exists(hasGeneric)
-  case value.Construct(_, vs) => vs.exists(hasGeneric)
+  case value.Construct(_, v) => hasGeneric(v)
   case _: value.Generic => true
   case _ => false
 
@@ -110,10 +110,15 @@ private def declarePattern[T](pattern: Pattern, typ: value.Term)(handler: Extend
       (P.Generic, ms, t)
     if name != "" then
       typ.whnf match
-      case value.Unwrap(value.Enum(_, e)) =>
+      case value.Unwrap(value.Enum(kases, e)) =>
         e(name) match
-        case (index, k) if k.fields.size == 0 =>
-          (P.Construct(index, Seq.empty), null, handler(value.Construct(index, Seq.empty)))
+        case (index, k) if k.fields =>
+          kases(index) match
+          case value.Record(ts, e1) => 
+            if e1.fields.size == 0 then
+              (P.Construct(index, P.Make(Seq.empty)), null, handler(value.Construct(index, value.Make(Seq.empty))))
+            else throw new NotHandledException("should be zero size")
+          case _ => logicError()
         case _ => fallback()
       case _ => fallback()
     else fallback()
@@ -131,11 +136,19 @@ private def declarePattern[T](pattern: Pattern, typ: value.Term)(handler: Extend
     case value.Unwrap(value.Enum(kases, et)) =>
       et(kase) match
       case (index, k) =>
-        if k.fields.size != fields.size then
-          notHandled()
-        else
-          val (ps, ms, t) = declareTelescope(fields, kases(index), k.fields, vs => value.Construct(index, vs))(handler)
-          (P.Construct(index, ps), ms, t)
+        if k.fields then
+          kases(index) match
+          case value.Record(ts, e) =>
+            if e.fields.size != fields.size then
+              notHandled()
+            else
+              val (ps, ms, t) = declareTelescope(fields, ts, e.fields, vs => value.Construct(index, value.Make(vs)))(handler)
+              (P.Construct(index, P.Make(ps)), ms, t)
+          case _ => logicError()
+        else if fields.size == 1 && fields(0).plicity == Plicity.Ex then
+          val (p, ms, t) = declarePattern(fields(0).unwrap, kases(index))(v => handler(value.Construct(index, v)))
+          (P.Construct(index, p), ms, t)
+        else notHandled()
       case null => notHandled()
     case _ => notHandled()
   trace.exit()

@@ -2,15 +2,15 @@
 val sharedSettings = Seq(
   name := "mlang2",
   version := "0.1.0",
-  scalaVersion := "3.0.0-M3",
+  scalaVersion := "3.0.1",
   scalacOptions ++= Seq("-Yexplicit-nulls"),
  // scalacOptions ++= Seq("-language:strictEquality", "-Ycheck-init"),
  // Test / classLoaderLayeringStrategy := ClassLoaderLayeringStrategy.ScalaLibrary,
   libraryDependencies ++= Seq(
-    ("com.lihaoyi" %% "os-lib" % "0.7.1").withDottyCompat(scalaVersion.value),
-    ("org.scala-lang.modules" %% "scala-collection-contrib" % "0.2.2").withDottyCompat(scalaVersion.value),
+    "com.lihaoyi" %% "os-lib" % "0.7.8",
+    ("org.scala-lang.modules" %% "scala-collection-contrib" % "0.2.2").cross(CrossVersion.for3Use2_13),
     "com.novocode" % "junit-interface" % "0.11" % "test",
-    "com.lihaoyi" %% "pprint" % "0.6.1"
+    "com.lihaoyi" %% "pprint" % "0.6.6"
   ),
 )
 
@@ -73,15 +73,14 @@ lazy val `dench-desktop` = project
     )
   )
 
-lazy val `dench-web` = project
-  .in(file("src-dench-web"))
-  .settings(
-    sharedSettings,
-    scalaJSUseMainModuleInitializer := true,
-    //mainClass in (Compile, run) := Some("mlang.ui.Main"),
-    libraryDependencies ++= Seq(
-      ("org.scala-js" %%% "scalajs-dom" % "1.1.0").withDottyCompat(scalaVersion.value)
-    )
-  )
-  .enablePlugins(ScalaJSPlugin)
+// lazy val `dench-web` = project
+//   .in(file("src-dench-web"))
+//   .settings(
+//     sharedSettings,
+//     scalaJSUseMainModuleInitializer := true,
+//     //mainClass in (Compile, run) := Some("mlang.ui.Main"),
+//     libraryDependencies ++= Seq(
+//     )
+//   )
+//   .enablePlugins(ScalaJSPlugin)
   //.dependsOn(dench.js)

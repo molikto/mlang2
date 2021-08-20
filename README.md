@@ -1,6 +1,6 @@
-# mlang ─ logical reconstruction of mathematical practice
+# mlang
 
-wip, experimental project
+Last incarnation of my dependent type implementation attempt 
 
 ## setup
 

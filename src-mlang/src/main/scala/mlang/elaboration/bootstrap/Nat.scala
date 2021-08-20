@@ -15,7 +15,7 @@ given elabNat: ImplicitAwareInferableElaborator[Int] with
 
 def natLit(a: Int): syntax.Term =
   var i = 0
-  var n = syntax.Construct(0, Seq.empty)
+  var n = syntax.Construct(0, syntax.Make(Seq.empty))
   while i < a do
     n = syntax.Construct(1, n)
     i += 1

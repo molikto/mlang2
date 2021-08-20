@@ -33,8 +33,11 @@ given elabRef: ImplicitAwareInferableElaborator[Ref | LiftRef] with
           typ.whnf match
           case value.Unwrap(value.Enum(kases, e)) =>
             e(ref) match
-            case (index, k) if k.fields.size == 0 =>
-              syntax.Construct(index, Seq.empty)
+            case (index, e) if e.fields =>
+              kases(index) match
+              case value.Record(_, e1) if e1.fields.size == 0 => 
+                syntax.Construct(index, syntax.Make(Seq.empty))
+              case _ => throw exp
             case _ => throw exp
           case _ => throw exp
         case _ => throw exp

@@ -190,7 +190,7 @@ class GrammarJsGen(lan: Language):
   def ref(p: TokenId): String = 
     if plain then
       lan(p).typ match
-      case TokenTyp.Unnamed(name) => "\"" + name.replace("\\", "\\\\").replace("\"", "\\\"") + "\""
+      case TokenTyp.Unnamed(name) => "\"" + name.replace("\\", "\\\\").nn.replace("\"", "\\\"") + "\""
       case TokenTyp.Constant(name, typ) => "_." + name
       case TokenTyp.Named(name, _, _)=> "_." + name
     else s"'\\U+${p.get.toHexString}'"

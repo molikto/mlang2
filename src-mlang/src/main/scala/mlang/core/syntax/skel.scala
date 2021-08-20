@@ -60,7 +60,7 @@ class SkelChecker(valid: Boolean, shallow: Boolean):
       case Enum(ks, _) => ks.foreach(checkNoSkel)
       case Lambda(b) => checkNoSkel(b.get)
       case p: PatternLambda => noValidSkel()
-      case Construct(_, fs) => fs.foreach(checkNoSkel)
+      case Construct(_, f) => checkNoSkel(f)
       case Make(fs) => fs.foreach(checkNoSkel)
       case App(l, r) => checkNoSkel(l); checkNoSkel(r)
       case Proj(l, _) => checkNoSkel(l)

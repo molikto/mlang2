@@ -59,12 +59,12 @@ def zero_add: (#n: nat) => (add(0, n) = n) := refl
 
 def add_zero: (#n: nat) => add(n, 0) = n :=
 { #zero -> refl
-| #suc(p) -> make(add_zero(#p))
+| #suc(p) -> add_zero(#p)
 }
 
 def add_assoc: (a: nat, b: nat, c: nat) => add(add(a, b), c) = add(a, add(b, c)) :=
 { zero, _, _ -> refl
-| suc(p), b, c -> make(add_assoc(p, b, c))
+| suc(p), b, c -> add_assoc(p, b, c)
 }
 
 def nat_sym_lem: (#a: nat, _: 0 = suc(a)@nat) => suc(a)@nat = 0 := sym

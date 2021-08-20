@@ -15,25 +15,25 @@ val program: Program = Seq(
   Box.Decl(Set.Zero),  // nat_decl 
   Box.DefRec(Ref(1), // nat 
     Enum(Seq(
-      Telescope.Nil,
-      Telescope.Cons(Ref(1) /* nat */, TelescopeClosure(Telescope.Nil))
+      Record(Telescope.Nil, etyp.Record(Seq.empty)),
+      Ref(1) /* nat */
     ), etyp.Enum(Seq(
-      etyp.Kase("zero", Seq.empty),
-      etyp.Kase("suc", Seq("prev"))
+      etyp.Kase("zero", true),
+      etyp.Kase("suc", false)
     )))
   ),
 
   Box.Decl(Pi(Ref(1), Pi(Ref(2), Ref(3), etyp.Pi("")), etyp.Pi(""))), // add_decl 
   Box.DefRec(Ref(1), // add
     PatternLambda(Seq(
-      Branch(Pattern.Construct(0, Seq.empty), Lambda(Ref(1))),
-      Branch(Pattern.Construct(1, Seq(Pattern.Generic)), Lambda(Construct(1, App(App(Ref(3), Ref(2)), Ref(1)))))
+      Branch(Pattern.Construct(0, Pattern.Make(Seq.empty)), Lambda(Ref(1))),
+      Branch(Pattern.Construct(1, Pattern.Generic), Lambda(Construct(1, App(App(Ref(3), Ref(2)), Ref(1)))))
     ))
   ),
 
   Box.Def( // two
     Ref(2),
-    Construct(1, Construct(1, Construct(0)))
+    Construct(1, Construct(1, Construct(0, Make(Seq.empty))))
   ),
 
   Box.Def( // 2 + 2

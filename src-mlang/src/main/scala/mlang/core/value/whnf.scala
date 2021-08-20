@@ -65,7 +65,7 @@ def reduceEq(t: Term, a: Term, b: Term): Term | Null = // FIXME it is ok to use 
   case Unwrap(en@Enum(kases, e)) =>
     (a.whnf, b.whnf) match
     case (Construct(k1, f1), Construct(k2, f2)) =>
-      if k1 != k2 then bottom(0) else Record(reduceEqTelescope(en(k1), f1, f2), etyp.Record(e(k1).fields))
+      if k1 != k2 then bottom(0) else reduceEq(en(k1), f1, f2)
     case _ => null
   case a: Meta => null
   case a: Generic => null
@@ -119,7 +119,7 @@ extension (v: Term) def extract(pattern: Pattern): Seq[Term] | Null =
       case _ => false
     case Pattern.Construct(name, pt) =>
       v.whnf match
-      case Construct(n, values) if name == n => goAll(pt, values)
+      case Construct(n, v1) if name == n => go(pt, v1)
       case _ => false
 
   if go(pattern, v) then vs.toSeq else null
