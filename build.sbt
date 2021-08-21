@@ -10,7 +10,8 @@ val sharedSettings = Seq(
     "com.lihaoyi" %% "os-lib" % "0.7.8",
     ("org.scala-lang.modules" %% "scala-collection-contrib" % "0.2.2").cross(CrossVersion.for3Use2_13),
     "com.novocode" % "junit-interface" % "0.11" % "test",
-    "com.lihaoyi" %% "pprint" % "0.6.6"
+    "com.lihaoyi" %% "pprint" % "0.6.6",
+    "org.typelevel" %% "cats-core" % "2.6.1"
   ),
 )
 
