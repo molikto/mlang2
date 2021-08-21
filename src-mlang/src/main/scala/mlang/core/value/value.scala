@@ -69,11 +69,9 @@ object SkelGlue:
 /**
   * provides indirectness so let-definition and global definitions are readback as references
   */
-case class Def(override val typ: Term, var term: Term | Null) extends Box
+case class Def(override val typ: Term) extends Box
 
-case class Meta(override val typ: Term, var term: Term | Null) extends Box:
-  override def toString() = s"Meta(${term != null})@" + System.identityHashCode(this)
-
+case class Meta(override val typ: Term) extends Box
 
 type Term = Annotated | Sort | CompoundTerm
 
