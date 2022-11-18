@@ -5,7 +5,7 @@ import utils._
 import scala.collection.mutable
 
 object Unwrap:
-  def unapply(term: Term)(using ectx: EvaluationContext): Option[Term] = // LATER why must this return a Option?
+  def unapply(term: Term): Option[Term] = // LATER why must this return a Option?
     term match
     case SkelGlue(_, term, _, Skel.Inductive) => Some(term.whnf) // FIXME maybe Unwrap should not be like this
     case Glue(_, term) => Some(term.whnf)
@@ -18,11 +18,11 @@ object Glued:
     case _ => Some(term)
 
 extension (term: Term)
-  def whnf(using ectx: EvaluationContext): Term =
+  def whnf: Term =
     term match
-    case d: Def => ectx.get(d).get.whnf
-    case meta: Meta =>
-      ectx.get(meta).map(_.whnf).getOrElse(meta)
+    case d: Def => d.term.asInstanceOf[Term].whnf
+    case meta@Meta(_, tm) =>
+      if tm == null then meta else tm.whnf
     case s: SkelGlue => s // don't reduce on skel glue
     case g: Generic => g
     case eq@Eq(t, a, b) =>
@@ -51,7 +51,7 @@ extension (term: Term)
       case ll => Proj(ll, r)
     case _ => term
 
-def reduceEq(t: Term, a: Term, b: Term)(using ectx: EvaluationContext): Term | Null = // FIXME it is ok to use 0 here?
+def reduceEq(t: Term, a: Term, b: Term): Term | Null = // FIXME it is ok to use 0 here?
   t.whnf match
   case Prop(i) => App(App(iff(i), a), b).whnf
   case Set(i) => ???
@@ -81,7 +81,7 @@ def reduceEqTelescope(tele: Telescope, as: Seq[Term], bs: Seq[Term]): Telescope 
     Telescope.Cons(Eq(head, as.head, bs.head), (a) => Telescope.Nil)
     //Telescope.Cons(Eq(head, as.head, bs.head), ???)
 
-inline def constructWhnf(lambda: PatternLambda, stuck: Term)(using ectx: EvaluationContext): (Term, Int) | Null =
+inline def constructWhnf(lambda: PatternLambda, stuck: Term): (Term, Int) | Null =
   var res: Term | Null = null
   var index = -1
   var cs = lambda.branches
@@ -96,7 +96,7 @@ inline def constructWhnf(lambda: PatternLambda, stuck: Term)(using ectx: Evaluat
   else
     (res, index)
 
-extension (v: Term) def extract(pattern: Pattern)(using ectx: EvaluationContext): Seq[Term] | Null =
+extension (v: Term) def extract(pattern: Pattern): Seq[Term] | Null =
   val vs = mutable.ArrayBuffer[Term]()
   def goAll(ps: Seq[Pattern], vs: Seq[Term]): Boolean =
     if ps.size != vs.size then logicError()
