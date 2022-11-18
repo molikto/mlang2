@@ -2,16 +2,16 @@
 val sharedSettings = Seq(
   name := "mlang2",
   version := "0.1.0",
-  scalaVersion := "3.0.1",
+  scalaVersion := "3.2.1",
   scalacOptions ++= Seq("-Yexplicit-nulls"),
  // scalacOptions ++= Seq("-language:strictEquality", "-Ycheck-init"),
  // Test / classLoaderLayeringStrategy := ClassLoaderLayeringStrategy.ScalaLibrary,
   libraryDependencies ++= Seq(
-    "com.lihaoyi" %% "os-lib" % "0.7.8",
-    ("org.scala-lang.modules" %% "scala-collection-contrib" % "0.2.2").cross(CrossVersion.for3Use2_13),
-    "com.novocode" % "junit-interface" % "0.11" % "test",
-    "com.lihaoyi" %% "pprint" % "0.6.6",
-    "org.typelevel" %% "cats-core" % "2.6.1"
+    "com.lihaoyi" %% "os-lib" % "0.8.1",
+    "org.scala-lang.modules" %% "scala-collection-contrib" % "0.3.0",
+    "com.github.sbt" % "junit-interface" % "0.13.2" % Test,
+    "com.lihaoyi" %% "pprint" % "0.7.1",
+    "org.typelevel" %% "cats-core" % "2.9.0"
   ),
 )
 
