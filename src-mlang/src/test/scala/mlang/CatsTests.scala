@@ -15,12 +15,6 @@ final case class Seed(long: Long) {
 }
 
 
-val nextLong: State[Seed, Long] = State(seed => (seed.next, seed.long))
-
-val createRobot: State[Seed, Robot] = for {
-  id <- nextLong,
-} yield Robot(id)
-
 class BaseTests {
   @Test def test(): Unit = {
   }

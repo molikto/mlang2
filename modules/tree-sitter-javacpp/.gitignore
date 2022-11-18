@@ -1,5 +1,6 @@
 treesitter/TreeSitterNative.java
 macosx-x86_64/
+macosx-arm64/
 treesitter.jar
 grammar/
 CMakeBuild/

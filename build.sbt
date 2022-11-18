@@ -30,7 +30,7 @@ lazy val dench =
   .settings(
     sharedSettings,
     libraryDependencies ++= Seq(
-      "org.bytedeco" % "javacpp" % "1.5.4"
+      "org.bytedeco" % "javacpp" % "1.5.8"
     )
   )
   .dependsOn(utils)
@@ -42,7 +42,7 @@ lazy val mlang =
   .settings(
     sharedSettings,
     libraryDependencies ++= Seq(
-      "org.bytedeco" % "javacpp" % "1.5.4"
+      "org.bytedeco" % "javacpp" % "1.5.8"
     )
   ).dependsOn(utils, dench)
   //.enablePlugins(ScalaJSBundlerPlugin)
